@@ -1,3 +1,6 @@
+make dev:
+	node main.js
+
 build:
 	docker build -t syamsuldocker/messaging-websocket .
 
