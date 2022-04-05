@@ -1,4 +1,4 @@
-make dev:
+make run-dev:
 	node main.js
 
 build:

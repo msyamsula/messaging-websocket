@@ -7,12 +7,18 @@ const io = new Server(httpServer, { /* options */ });
 
 io.on("connection", (socket) => {
 
-    socket.on("incomingMessage", (msg) => {
-        io.emit(msg.to, msg)
+    socket.on("incomingMessage", (msg, ack) => {
+        socket.broadcast.emit(msg.to, msg)
+        ack()
     })
 
-    socket.on("userLogout", userID => {
-        socket.broadcast.emit("userLogout", userID)
+    socket.on("userLogout", async userID => {
+        await socket.broadcast.emit("userLogout", userID)
+        await socket.disconnect()
+    })
+
+    socket.on("readMessage", data => {
+        socket.broadcast.emit("messageHasBeenRead", data)
     })
 
 });
