@@ -32,5 +32,13 @@ io.of("/login").on("connection", socket => {
 
 })
 
+io.of("/signup").on("connection", socket => {
+
+    socket.on("userSignUp", user => {
+        io.emit("userSignUp", user)
+    })
+
+})
+
 
 httpServer.listen(8000);
