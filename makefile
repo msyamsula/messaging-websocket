@@ -41,7 +41,7 @@ run-production:
 	--network=host \
 	-v ${CURDIR}/nginx/:/etc/nginx/conf.d/ \
 	-v ${CURDIR}/certbot/www/:/var/www/certbot/ \
-	-v ${CURDIR}/certbot/conf/:/etc/nginx/ssl \
+	-v ${CURDIR}/certbot/conf/:/etc/nginx/ssl/ \
 	nginx
 	docker run \
 	-itd \
