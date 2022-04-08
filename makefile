@@ -1,51 +1,65 @@
-make run-dev:
-	node main.js
+# local
+run-local:
+	node -r dotenv/config main.js dotenv_config_path=${CURDIR}/env/dev/.env
 
-build:
-	docker build -t syamsuldocker/messaging-websocket .
+# docker
+build-docker-local:
+	docker build \
+	-t syamsuldocker/messaging-websocket \
+	-f ${CURDIR}/env/dev/Dockerfile \
+	.
 
-run:
-	make build
-	docker run -itd --name websocket --network=host syamsuldocker/messaging-websocket
+run-docker-local:
+	make build-docker-local
+	docker run \
+	-itd \
+	--rm \
+	--name messaging-websocket \
+	--network=host \
+	syamsuldocker/messaging-websocket
+	docker logs -f messaging-websocket
 
-ship:
-	make build
+stop-docker-local:
+	docker stop messaging-websocket
+
+# ship production
+ship-production:
+	docker build \
+	-t syamsuldocker/messaging-websocket \
+	-f env/prod/Dockerfile \
+	.
 	docker push syamsuldocker/messaging-websocket
 	scp -i ~/syamsul.pem makefile ubuntu@ec2-18-142-64-31.ap-southeast-1.compute.amazonaws.com:~
-	scp -i ~/syamsul.pem nginx/prod/nginx.conf ubuntu@ec2-18-142-64-31.ap-southeast-1.compute.amazonaws.com:~/prod
+	scp -i ~/syamsul.pem env/prod/default.conf ubuntu@ec2-18-142-64-31.ap-southeast-1.compute.amazonaws.com:~/nginx
 
+# production
+run-production:
+	docker pull syamsuldocker/messaging-websocket
+	docker run \
+	-itd \
+	--name nginx \
+	--network=host \
+	-v ${CURDIR}/nginx/:/etc/nginx/conf.d/ \
+	-v ${CURDIR}/certbot/www/:/var/www/certbot/ \
+	-v ${CURDIR}/certbot/config:/etc/nginx/ssl \
+	nginx
+	docker run \
+	-itd \
+	--name messaging-websocket \
+	--network=host \
+	syamsuldocker/messaging-websocket
+
+stop-production:
+	docker stop nginx messaging-websocket
+	docker rm nginx messaging-websocket
+
+restart-production:
+	make run-production
+	make stop-production
+
+# ssh
 ssh:
 	ssh -i ~/syamsul.pem ubuntu@ec2-18-142-64-31.ap-southeast-1.compute.amazonaws.com
-
-stop:
-	docker stop websocket
-	docker rm websocket
-
-nginx-start:
-	docker run -itd --name nginx --network=host \
-	-v ${CURDIR}/nginx/dev:/etc/nginx/conf.d \
-	nginx
-
-nginx-stop:
-	docker stop nginx
-	docker rm nginx
-
-prod-run:
-	docker pull syamsuldocker/messaging-websocket
-	docker run -itd --name nginx --network=host \
-	-v ${CURDIR}/prod:/etc/nginx/conf.d:ro \
-	-v ${CURDIR}/certbot/www:/var/www/certbot/:ro \
-	-v ${CURDIR}/certbot/conf:/etc/nginx/ssl/:ro \
-	nginx
-	docker run -itd --name websocket --network=host syamsuldocker/messaging-websocket
-
-prod-stop:
-	docker stop nginx websocket
-	docker rm nginx websocket
-
-prod-restart:
-	make prod-stop
-	make prod-run
 
 # https tools
 webserver-start:

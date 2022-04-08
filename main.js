@@ -40,5 +40,5 @@ io.of("/signup").on("connection", socket => {
 
 })
 
-
-httpServer.listen(8000);
+console.log("runnin on port:", process.env.PORT);
+httpServer.listen(process.env.PORT);
