@@ -62,13 +62,13 @@ ssh:
 	ssh -i ~/syamsul.pem ubuntu@ec2-18-142-64-31.ap-southeast-1.compute.amazonaws.com
 
 # https tools
-webserver-start:
+start-webserver:
 	docker run -itd --name nginx --network=host \
 	 -v ${CURDIR}/prod:/etc/nginx/conf.d/:ro \
 	 -v ${CURDIR}/certbot/www:/var/www/certbot/:ro \
 	 -v ${CURDIR}/certbot/conf:/etc/nginx/ssl/:ro \
 	 nginx:latest
-webserver-stop:
+stop-webserver:
 	docker stop nginx
 	docker rm nginx
 certbot-dry-run:
