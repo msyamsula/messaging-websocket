@@ -54,8 +54,8 @@ stop-production:
 	docker rm nginx messaging-websocket
 
 restart-production:
-	make run-production
 	make stop-production
+	make run-production
 
 # ssh
 ssh:
