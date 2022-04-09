@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+  nginx-websocket:
+    image: syamsuldocker/nginx-websocket
+    ports:
+     - "80:80"
+     - 443:443
+    volumes:
+      - ./certbot/www:/var/www/certbot
+      - ./certbot/conf:/etc/nginx/ssl
+    # network_mode: "host"
+    # environment:
+    #   - DUMMY=1
+    # env_file:
+    # - /path/to/file
+  redis:
+    hostname: redis
+    image: redis
+    # network_mode: "host"
+    # ports:
+    #   - "8000:80"
+    # volumes:
+    #   - /path/to/volume
+    # environment:
+    #   - DUMMY=1
+    # env_file:
+    #   - /path/to/file
+  websocket:
+    hostname: "websocket"
+    image: syamsuldocker/messaging-websocket
+
+  # websocket-2:
+  #   hostname: "websocket-2"
+  #   image: syamsuldocker/messaging-websocket
+
+  # websocket-3:
+  #   hostname: "websocket-3"
+  #   image: syamsuldocker/messaging-websocket
+  

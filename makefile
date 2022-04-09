@@ -1,11 +1,11 @@
-
-stop-local-cluster:
+#cluster
+stop:
 	docker-compose -f env/dev/docker-compose.yaml down
 
-ps-local-cluster:
+ps:
 	docker-compose -f env/dev/docker-compose.yaml ps
 
-build-local-cluster:
+build:
 	docker build \
 	-t syamsuldocker/messaging-websocket \
 	-f ${CURDIR}/env/dev/Dockerfile \
@@ -15,8 +15,8 @@ build-local-cluster:
 	-f ${CURDIR}/env/dev/Dockerfile.nginx \
 	.
 
-run-local-cluster:
-	make build-local-cluster
+run:
+	make build
 	docker-compose -f env/dev/docker-compose.yaml up --scale websocket=${scale} -d
 
 # local
@@ -30,34 +30,24 @@ ship-production:
 	-t syamsuldocker/messaging-websocket \
 	-f env/prod/Dockerfile \
 	.
+	docker build \
+	-t syamsuldocker/nginx-websocket \
+	-f env/prod/Dockerfile.nginx \
+	.
 	docker push syamsuldocker/messaging-websocket
+	docker push syamsuldocker/nginx-websocket
 	scp -i ~/syamsul.pem makefile ubuntu@ec2-18-142-64-31.ap-southeast-1.compute.amazonaws.com:~
-	scp -i ~/syamsul.pem env/prod/default.conf ubuntu@ec2-18-142-64-31.ap-southeast-1.compute.amazonaws.com:~/nginx
+	scp -i ~/syamsul.pem env/prod/docker-compose.yaml ubuntu@ec2-18-142-64-31.ap-southeast-1.compute.amazonaws.com:~/
 
 # production
 run-production:
-	docker pull syamsuldocker/messaging-websocket
-	docker run \
-	-itd \
-	--name nginx \
-	--network=host \
-	-v ${CURDIR}/nginx/:/etc/nginx/conf.d/ \
-	-v ${CURDIR}/certbot/www/:/var/www/certbot/ \
-	-v ${CURDIR}/certbot/conf/:/etc/nginx/ssl/ \
-	nginx
-	docker run \
-	-itd \
-	--name messaging-websocket \
-	--network=host \
-	syamsuldocker/messaging-websocket
+	docker pull syamsuldocker/messaging-websocket 
+	docker pull syamsuldocker/nginx-websocket 
+	docker pull redis
+	docker-compose up -d --scale websocket=${scale}
 
 stop-production:
-	docker stop nginx messaging-websocket
-	docker rm nginx messaging-websocket
-
-restart-production:
-	make stop-production
-	make run-production
+	docker-compose down
 
 # ssh
 ssh:
