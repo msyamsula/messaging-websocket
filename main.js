@@ -6,6 +6,7 @@ const httpServer = createServer()
 const io = new Server(httpServer, { /* options */ });
 
 io.on("connection", (socket) => {
+    console.log("connect to /:", socket.id);
 
     socket.on("incomingMessage", (msg, ack) => {
         socket.broadcast.emit(msg.to, msg)
@@ -24,7 +25,7 @@ io.on("connection", (socket) => {
 });
 
 io.of("/login").on("connection", socket => {
-    
+    console.log("connect to /login:", socket.id);
     
     socket.on("userLogin", (userID) => {
         io.emit("userLogin", userID)
@@ -33,6 +34,7 @@ io.of("/login").on("connection", socket => {
 })
 
 io.of("/signup").on("connection", socket => {
+    console.log("connect to /signup:", socket.id);
 
     socket.on("userSignUp", user => {
         io.emit("userSignUp", user)
