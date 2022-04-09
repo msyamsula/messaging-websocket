@@ -1,13 +1,20 @@
+const { createClient } = require("redis")
+const { Server } = require("socket.io")
+const { createAdapter } = require("@socket.io/redis-adapter")
 const { createServer } = require("http");
-const { Server } = require("socket.io");
+// const { Server } = require("socket.io");
+const redisURL = process.env.REDIS_URL
+const port = process.env.PORT
+
 
 const httpServer = createServer()
 
 const io = new Server(httpServer, { /* options */ });
+// const io = new Server()
+const pubClient = createClient({ url: redisURL })
+const subClient = pubClient.duplicate()
 
 io.on("connection", (socket) => {
-    console.log("connect to /:", socket.id);
-
     socket.on("incomingMessage", (msg, ack) => {
         socket.broadcast.emit(msg.to, msg)
         ack()
@@ -25,8 +32,11 @@ io.on("connection", (socket) => {
 });
 
 io.of("/login").on("connection", socket => {
-    console.log("connect to /login:", socket.id);
-    
+
+    socket.on("someone connected", id => {
+        console.log(id);
+    })
+
     socket.on("userLogin", (userID) => {
         io.emit("userLogin", userID)
     })
@@ -34,13 +44,19 @@ io.of("/login").on("connection", socket => {
 })
 
 io.of("/signup").on("connection", socket => {
-    console.log("connect to /signup:", socket.id);
-
     socket.on("userSignUp", user => {
         io.emit("userSignUp", user)
     })
 
 })
 
-console.log("runnin on port:", process.env.PORT);
-httpServer.listen(process.env.PORT);
+Promise.all([pubClient.connect(), subClient.connect]).then(() => {
+    io.adapter(createAdapter(pubClient, subClient))
+    console.log("running on port:", port);
+    // io.listen(port)
+    httpServer.listen(port);
+
+})
+
+
+// console.log("runnin on port:", port);

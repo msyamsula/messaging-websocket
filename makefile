@@ -1,26 +1,28 @@
-# local
-run-local:
-	node -r dotenv/config main.js dotenv_config_path=${CURDIR}/env/dev/.env
 
-# docker
-build-docker-local:
+stop-local-cluster:
+	docker-compose -f env/dev/docker-compose.yaml down
+
+ps-local-cluster:
+	docker-compose -f env/dev/docker-compose.yaml ps
+
+build-local-cluster:
 	docker build \
 	-t syamsuldocker/messaging-websocket \
 	-f ${CURDIR}/env/dev/Dockerfile \
 	.
+	docker build \
+	-t syamsuldocker/nginx-websocket \
+	-f ${CURDIR}/env/dev/Dockerfile.nginx \
+	.
 
-run-docker-local:
-	make build-docker-local
-	docker run \
-	-itd \
-	--rm \
-	--name messaging-websocket \
-	--network=host \
-	syamsuldocker/messaging-websocket
-	docker logs -f messaging-websocket
+run-local-cluster:
+	make build-local-cluster
+	docker-compose -f env/dev/docker-compose.yaml up --scale websocket=${scale} -d
 
-stop-docker-local:
-	docker stop messaging-websocket
+# local
+run-local:
+	node -r dotenv/config main.js dotenv_config_path=${CURDIR}/env/dev/.env
+
 
 # ship production
 ship-production:
