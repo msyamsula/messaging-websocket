@@ -1,17 +1,21 @@
+const dotenv = require("dotenv")
+dotenv.config({
+    path: "env/dev/.env"
+})
+
 const { createClient } = require("redis")
 const { Server } = require("socket.io")
 const { createAdapter } = require("@socket.io/redis-adapter")
 const { createServer } = require("http");
-// const { Server } = require("socket.io");
+
 const redisURL = process.env.REDIS_URL
+const redisPassword = process.env.REDIS_PASSWORD
 const port = process.env.PORT
 
-
 const httpServer = createServer()
-
 const io = new Server(httpServer, { /* options */ });
-// const io = new Server()
-const pubClient = createClient({ url: redisURL })
+
+const pubClient = createClient({ url: redisURL, password: redisPassword })
 const subClient = pubClient.duplicate()
 
 io.on("connection", (socket) => {
