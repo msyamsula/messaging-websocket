@@ -1,6 +1,6 @@
 const dotenv = require("dotenv")
 dotenv.config({
-    path: "env/dev/.env"
+    path: ".env"
 })
 
 const { createClient } = require("redis")
@@ -10,7 +10,7 @@ const { createServer } = require("http");
 
 const redisURL = process.env.REDIS_URL
 const redisPassword = process.env.REDIS_PASSWORD
-const port = process.env.PORT
+const port = process.env.APP_PORT
 
 const httpServer = createServer()
 const io = new Server(httpServer, { /* options */ });

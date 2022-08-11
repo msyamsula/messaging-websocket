@@ -8,12 +8,12 @@ ps:
 build:
 	docker build \
 	-t syamsuldocker/messaging-websocket \
-	-f ${CURDIR}/env/dev/Dockerfile \
+	-f Dockerfile \
 	.
-	docker build \
-	-t syamsuldocker/nginx-websocket \
-	-f ${CURDIR}/env/dev/Dockerfile.nginx \
-	.
+	# docker build \
+	# -t syamsuldocker/nginx-websocket \
+	# -f ${CURDIR}/env/dev/Dockerfile.nginx \
+	# .
 
 run:
 	make build
