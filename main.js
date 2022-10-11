@@ -1,7 +1,7 @@
-const dotenv = require("dotenv")
-dotenv.config({
-    path: ".env"
-})
+// const dotenv = require("dotenv")
+// dotenv.config({
+//     path: ".prod.env"
+// })
 
 const { createClient } = require("redis")
 const { Server } = require("socket.io")
@@ -11,6 +11,7 @@ const { createServer } = require("http");
 const redisURL = process.env.REDIS_URL
 const redisPassword = process.env.REDIS_PASSWORD
 const port = process.env.APP_PORT
+const wsPrefix = process.env.WS_PREFIX
 
 const httpServer = createServer()
 const io = new Server(httpServer, { /* options */ });
@@ -18,7 +19,8 @@ const io = new Server(httpServer, { /* options */ });
 const pubClient = createClient({ url: redisURL, password: redisPassword })
 const subClient = pubClient.duplicate()
 
-io.on("connection", (socket) => {
+
+io.of(wsPrefix).on("connection", (socket) => {
     socket.on("incomingMessage", (msg, ack) => {
         socket.broadcast.emit(msg.to, msg)
         ack()
@@ -35,21 +37,21 @@ io.on("connection", (socket) => {
 
 });
 
-io.of("/login").on("connection", socket => {
+io.of(wsPrefix+"/login").on("connection", socket => {
 
     socket.on("someone connected", id => {
         console.log(id);
     })
 
     socket.on("userLogin", (userID) => {
-        io.emit("userLogin", userID)
+        io.of(wsPrefix).emit("userLogin", userID)
     })
 
 })
 
-io.of("/signup").on("connection", socket => {
+io.of(wsPrefix+"/signup").on("connection", socket => {
     socket.on("userSignUp", user => {
-        io.emit("userSignUp", user)
+        io.of(wsPrefix).emit("userSignUp", user)
     })
 
 })
