@@ -22,8 +22,10 @@ const subClient = pubClient.duplicate()
 
 io.of(wsPrefix).on("connection", (socket) => {
     socket.on("incomingMessage", (msg, ack) => {
-        socket.broadcast.emit(msg.to, msg)
-        ack()
+        // console.log(msg.receiver_id.toString());
+        // socket.broadcast.emit(msg.to, msg)
+        io.of(wsPrefix).emit(msg.receiver_id.toString(), msg)
+        // ack()
     })
 
     socket.on("userLogout", async userID => {
