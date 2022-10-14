@@ -22,10 +22,7 @@ const subClient = pubClient.duplicate()
 
 io.of(wsPrefix).on("connection", (socket) => {
     socket.on("incomingMessage", (msg, ack) => {
-        // console.log(msg.receiver_id.toString());
-        // socket.broadcast.emit(msg.to, msg)
-        io.of(wsPrefix).emit(msg.receiver_id.toString(), msg)
-        // ack()
+        socket.broadcast.emit(msg.receiver_id.toString(), msg)
     })
 
     socket.on("userLogout", async userID => {
@@ -34,7 +31,13 @@ io.of(wsPrefix).on("connection", (socket) => {
     })
 
     socket.on("readMessage", data => {
-        socket.broadcast.emit("messageHasBeenRead", data)
+        let event = `immediateRead${data.sender_id}`
+        socket.broadcast.emit(event, data)
+    })
+    
+    socket.on("lateRead", async data => {
+        let event = `lateRead${data.sender_id}`
+        socket.broadcast.emit(event, data)
     })
 
 });
@@ -42,7 +45,6 @@ io.of(wsPrefix).on("connection", (socket) => {
 io.of(wsPrefix+"/login").on("connection", socket => {
 
     socket.on("someone connected", id => {
-        console.log(id);
     })
 
     socket.on("userLogin", (userID) => {
@@ -61,10 +63,7 @@ io.of(wsPrefix+"/signup").on("connection", socket => {
 Promise.all([pubClient.connect(), subClient.connect]).then(() => {
     io.adapter(createAdapter(pubClient, subClient))
     console.log("running on port:", port);
-    // io.listen(port)
     httpServer.listen(port);
 
 })
 
-
-// console.log("runnin on port:", port);
