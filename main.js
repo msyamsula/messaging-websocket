@@ -1,7 +1,7 @@
-// const dotenv = require("dotenv")
-// dotenv.config({
-//     path: ".prod.env"
-// })
+const dotenv = require("dotenv")
+dotenv.config({
+    path: ".prod.env"
+})
 
 const { createClient } = require("redis")
 const { Server } = require("socket.io")

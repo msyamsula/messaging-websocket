@@ -9,7 +9,7 @@ COPY main.js .
 # RUN chmod +x wait-for-it.sh
 COPY package.json .
 
-RUN npm install -g npm@8.19.2
+RUN npm install -g npm@9.5.0
 RUN npm install
 
 CMD ["node", "main.js"]
